@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
-import { router } from "../router/Routes";
+import { useSelector } from "react-redux";
 
 axios.defaults.baseURL = "http://localhost:8000/";
 axios.defaults.withCredentials = true;
@@ -27,10 +27,14 @@ const Todo = {
 
 const Auth = {
   login: (username, password) =>
-    requests.post("auth/token", { username, password }),
+    requests.post(
+      "auth/token",
+      axios.toFormData({ username: username, password: password })
+    ),
 };
 const service = {
   Todo,
+  Auth,
 };
 
 export default service;

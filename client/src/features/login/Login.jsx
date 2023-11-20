@@ -15,8 +15,10 @@ import { useState, useRef, useEffect } from "react";
 import { green, red } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { useLoginMutation } from "./authApiSlice";
-import { setCredentials } from "./authSlice";
+import { setCredentials, selectCurrentToken } from "./authSlice";
+import service from "../../app/api/service";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -48,8 +50,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const [login, { isLoading }] = useLoginMutation();
-
   const dispatch = useDispatch();
 
   const [locked, setLocked] = useState(true);
@@ -70,11 +70,24 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      console.log(user, password)
-      const userData = await login({ user, password }).unwrap();
+      const userData = await service.Auth.login(user, password);
+      console.log(userData);
+
       dispatch(setCredentials({ ...userData, user }));
       setUser("");
       setPassword("");
+
+      const token = userData["access_token"];
+      console.log(token)
+
+      axios.interceptors.request.use((request) => {
+        if (token) {
+          request.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return request;
+      });
+
       navigate("/todos");
     } catch (error) {
       console.log(error);
