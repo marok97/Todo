@@ -15,10 +15,9 @@ import { useState, useRef, useEffect } from "react";
 import { green, red } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCredentials, selectCurrentToken } from "./authSlice";
+import { setCredentials } from "./authSlice";
 import service from "../../app/api/service";
 import axios from "axios";
-import { useSelector } from "react-redux";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -57,29 +56,22 @@ const Login = () => {
     setLocked((prevState) => !prevState);
   };
 
-  const authenticate = () => {
-    handleLock();
-  };
   const containerRef = useRef(null);
 
   useEffect(() => {
     userRef.current.focus();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const authenticate = async (e) => {
     e.preventDefault();
-
+    
     try {
       const userData = await service.Auth.login(user, password);
-      console.log(userData);
-
+      handleLock();
       dispatch(setCredentials({ ...userData, user }));
       setUser("");
       setPassword("");
-
       const token = userData["access_token"];
-      console.log(token)
-
       axios.interceptors.request.use((request) => {
         if (token) {
           request.headers.Authorization = `Bearer ${token}`;
@@ -88,7 +80,8 @@ const Login = () => {
         return request;
       });
 
-      navigate("/todos");
+      navigate("/todos")
+
     } catch (error) {
       console.log(error);
     }
@@ -123,7 +116,7 @@ const Login = () => {
       <Typography component="h1" variant="h5">
         Sign in
       </Typography>
-      <StyledForm onSubmit={handleSubmit}>
+      <StyledForm onSubmit={authenticate}>
         <TextField
           variant="outlined"
           margin="normal"
@@ -154,7 +147,6 @@ const Login = () => {
           fullWidth
           variant="contained"
           color="primary"
-          // onClick={handleSubmit}
         >
           Sign In
         </StyledButton>

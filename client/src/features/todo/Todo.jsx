@@ -5,17 +5,17 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { logOut as logOutAction } from "../login/authSlice";
 import { useNavigate } from "react-router-dom";
+import TodoGrid from "./TodoGrid";
 
 const Todo = () => {
   const [loading, setLoading] = useState(true);
-  const [todos, setTodos] = useState(null);
+  const [todos, setTodos] = useState();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     service.Todo.getTodos()
       .then((data) => setTodos(data))
-      .then(() => console.log(todos))
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   }, []);
@@ -28,8 +28,11 @@ const Todo = () => {
   if (loading) return <LoadingComponent message="Retrieving todos..." />;
   return (
     <>
-      <Button variant="contained" onClick={() => console.log(todos)}>Press me</Button>
-      <Button variant="contained" onClick={logOut}>Log out..</Button>
+      <Button variant="contained" onClick={logOut}>
+        Log out..
+      </Button>
+      
+      {todos && <TodoGrid todoData={todos}/>}
     </>
   );
 };
