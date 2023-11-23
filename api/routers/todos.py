@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
-from models import Todos
+from models import Todo
 from schemas import TodoRequest
 from starlette import status
 from dependencies.db_dependency import get_db
@@ -19,7 +19,7 @@ def get_todos(user: user_dependency, db: db_dependency):
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    todos = db.query(Todos).filter(Todos.owner_id == user.get("id")).all()
+    todos = db.query(Todo).filter(Todo.owner_id == user.get("id")).all()
     return todos
 
 
@@ -29,9 +29,9 @@ def get_todo_by_id(user: user_dependency, db: db_dependency, todo_id: int = Path
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     todo_model = (
-        db.query(Todos)
-        .filter(Todos.id == todo_id)
-        .filter(Todos.owner_id == user.get("id"))
+        db.query(Todo)
+        .filter(Todo.id == todo_id)
+        .filter(Todo.owner_id == user.get("id"))
         .first()
     )
 
@@ -48,7 +48,7 @@ def post_todo(user: user_dependency, db: db_dependency, todo_request: TodoReques
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authenticated"
         )
 
-    todo_model = Todos(**todo_request.model_dump(), owner_id=user.get("id"))
+    todo_model = Todo(**todo_request.model_dump(), owner_id=user.get("id"))
 
     db.add(todo_model)
     db.commit()
@@ -65,9 +65,9 @@ def update_todo(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     todo_model = (
-        db.query(Todos)
-        .filter(Todos.id == todo_id)
-        .filter(Todos.owner_id == user.get("id"))
+        db.query(Todo)
+        .filter(Todo.id == todo_id)
+        .filter(Todo.owner_id == user.get("id"))
         .first()
     )
 
@@ -89,9 +89,9 @@ def delete_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     todo_model = (
-        db.query(Todos)
-        .filter(Todos.id == todo_id)
-        .filter(Todos.owner_id == user.get("id"))
+        db.query(Todo)
+        .filter(Todo.id == todo_id)
+        .filter(Todo.owner_id == user.get("id"))
         .first()
     )
 
