@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Container } from "@mui/material";
 import service from "../../app/api/service";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { useState, useEffect } from "react";
@@ -26,15 +26,7 @@ const Todo = () => {
   }
 
   if (loading) return <LoadingComponent message="Retrieving todos..." />;
-  return (
-    <>
-      <Button variant="contained" onClick={logOut}>
-        Log out..
-      </Button>
-      
-      {todos && <TodoGrid todoData={todos}/>}
-    </>
-  );
+  return <Container>{todos && <TodoGrid todoData={todos} />}</Container>;
 };
 
 export default Todo;

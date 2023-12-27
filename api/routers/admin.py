@@ -1,8 +1,7 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import Todo
-from schemas import TodoRequest
 from starlette import status
 from dependencies.db_dependency import get_db
 from .auth import get_current_user

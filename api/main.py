@@ -6,7 +6,7 @@ from routers import auth, todos, admin
 
 app = FastAPI(title="TodoApp")
 
-origins = ["*"]
+origins = ["http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

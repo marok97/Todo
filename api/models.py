@@ -16,18 +16,30 @@ class User(BaseModel):
     role = Column(String)
 
     # Relationships
-    todos = Relationship("Todos", back_populates="owner", passive_deletes=True)
+    todos = Relationship("Todo", back_populates="owner", passive_deletes=True)
 
 
 class Todo(BaseModel):
     __tablename__ = "todos"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    title = Column(String)
-    description = Column(String)
-    priority = Column(Integer)
-    complete = Column(Boolean, default=False)
+    status = Column(String)
 
     # Relationships
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = Relationship("User", back_populates="todos")
+
+    todo_list = Relationship("TodoList", back_populates="todo_list", passive_deletes=True)
+
+
+class TodoList(BaseModel):
+    __tablename__ = "todo_list"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    title = Column(String)
+    description = Column(String)
+    priority = Column(Integer)
+
+    #Relationships
+    todo_id = Column(Integer, ForeignKey("todos.id"))
+    todo_list = Relationship("Todo", back_populates="todo_list", passive_deletes=True)

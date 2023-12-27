@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from models import Todo
-from schemas import TodoRequest
+from schemas import TodoCreate
 from starlette import status
 from dependencies.db_dependency import get_db
 from .auth import get_current_user
@@ -42,13 +42,13 @@ def get_todo_by_id(user: user_dependency, db: db_dependency, todo_id: int = Path
 
 
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
-def post_todo(user: user_dependency, db: db_dependency, todo_request: TodoRequest):
+def post_todo(user: user_dependency, db: db_dependency, todo_schema: TodoCreate):
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authenticated"
         )
 
-    todo_model = Todo(**todo_request.model_dump(), owner_id=user.get("id"))
+    todo_model = Todo(**todo_schema.model_dump(), owner_id=user.get("id"))
 
     db.add(todo_model)
     db.commit()
@@ -58,7 +58,7 @@ def post_todo(user: user_dependency, db: db_dependency, todo_request: TodoReques
 def update_todo(
     user: user_dependency,
     db: db_dependency,
-    todo_request: TodoRequest,
+    todo_schema: TodoCreate,
     todo_id: int = Path(gt=0),
 ):
     if user is None:
@@ -74,10 +74,10 @@ def update_todo(
     if not todo_model:
         raise HTTPException(status_code=404, detail="Todo not found")
 
-    todo_model.title = todo_request.title
-    todo_model.description = todo_request.description
-    todo_model.priority = todo_request.priority
-    todo_model.complete = todo_request.complete
+    todo_model.title = todo_schema.title
+    todo_model.description = todo_schema.description
+    todo_model.priority = todo_schema.priority
+    todo_model.complete = todo_schema.complete
 
     db.add(todo_model)
     db.commit()
