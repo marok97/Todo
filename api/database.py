@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists
-from models import User
+from models import User, Task
 
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./todosapp.db"
@@ -11,8 +11,9 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-# Event handler to populate the User table on app start if it's empty
-def is_empty_table(session):
+def is_user_table_empty(session):
     return not session.query(exists().where(User.id.isnot(None))).scalar()
+
+def is_task_table_empty(session):
+    return not session.query(exists().where(Task.id.isnot(None))).scalar()
 

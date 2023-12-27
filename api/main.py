@@ -1,10 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine, is_empty_table, SessionLocal
+from database import engine, is_user_table_empty, is_task_table_empty, SessionLocal
 import models
 from routers import auth, admin, tasks
-from dependencies.db_dependency import get_db
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -14,8 +13,8 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         yield db
-        
-        if is_empty_table(db):
+
+        if is_user_table_empty(db):
             # Add your initial data here
             user_data = [
                 {
@@ -33,6 +32,14 @@ async def lifespan(app: FastAPI):
                 user = models.User(**user_info)
                 db.add(user)
             db.commit()
+
+        if is_task_table_empty(db):
+            task_data = [
+                {
+                    "status": ""
+                }
+            ]
+
     finally:
         db.close()
 
