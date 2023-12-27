@@ -1,9 +1,10 @@
-from database import BaseModel
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
-from sqlalchemy.orm import Relationship
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
+Base = declarative_base()
 
-class User(BaseModel):
+class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -16,30 +17,30 @@ class User(BaseModel):
     role = Column(String)
 
     # Relationships
-    todos = Relationship("Todo", back_populates="owner", passive_deletes=True)
+    tasks = relationship("Task", back_populates="owner", passive_deletes=True)
 
 
-class Todo(BaseModel):
-    __tablename__ = "todos"
+class Task(Base):
+    __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     status = Column(String)
 
-    # Relationships
+    # relationships
     owner_id = Column(Integer, ForeignKey("users.id"))
-    owner = Relationship("User", back_populates="todos")
+    owner = relationship("User", back_populates="tasks")
 
-    todo_list = Relationship("TodoList", back_populates="todo_list", passive_deletes=True)
+    task_list = relationship("TaskList", back_populates="task_list", passive_deletes=True)
 
 
-class TodoList(BaseModel):
-    __tablename__ = "todo_list"
+class TaskList(Base):
+    __tablename__ = "task_list"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String)
     description = Column(String)
     priority = Column(Integer)
 
-    #Relationships
-    todo_id = Column(Integer, ForeignKey("todos.id"))
-    todo_list = Relationship("Todo", back_populates="todo_list", passive_deletes=True)
+    #relationships
+    task_id = Column(Integer, ForeignKey("tasks.id"))
+    task_list = relationship("Task", back_populates="task_list", passive_deletes=True)

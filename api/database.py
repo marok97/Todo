@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import exists
+from models import User
+
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./todosapp.db"
 
@@ -9,4 +11,8 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-BaseModel = declarative_base()
+
+# Event handler to populate the User table on app start if it's empty
+def is_empty_table(session):
+    return not session.query(exists().where(User.id.isnot(None))).scalar()
+

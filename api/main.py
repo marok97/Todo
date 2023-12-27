@@ -1,11 +1,43 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine
+from database import engine, is_empty_table, SessionLocal
 import models
-from routers import auth, todos, admin
+from routers import auth, admin, tasks
+from dependencies.db_dependency import get_db
 
-app = FastAPI(title="TodoApp")
+models.Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db = SessionLocal()
+    try:
+        yield db
+        
+        if is_empty_table(db):
+            # Add your initial data here
+            user_data = [
+                {
+                    "email": "user1@example.com",
+                    "username": "marok",
+                    "first_name": "Christoffer",
+                    "last_name": "Andersson",
+                    "hashed_password": "password1",
+                    "is_active": True,
+                    "role": "admin",
+                },
+            ]
+
+            for user_info in user_data:
+                user = models.User(**user_info)
+                db.add(user)
+            db.commit()
+    finally:
+        db.close()
+
+
+app = FastAPI(title="TodoApp", lifespan=lifespan)
 origins = ["http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
@@ -15,8 +47,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-models.BaseModel.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
-app.include_router(todos.router)
+app.include_router(tasks.router)
 app.include_router(admin.router)
