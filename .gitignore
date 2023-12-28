@@ -311,3 +311,4 @@ cython_debug/
 .ionide
 
 .DS_Store
+.db

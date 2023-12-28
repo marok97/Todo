@@ -28,10 +28,10 @@ function App() {
           display: "flex",
         }}
       >
-        <Layout />
+        {/* <Layout />
 
-        
-        {/* <RouterProvider router={router} /> */}
+         */}
+        <RouterProvider router={router} />
       </Container>
     </ThemeProvider>
   );

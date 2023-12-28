@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  api:
+    container_name: "api"
+    build:
+      context: "./api"
+      dockerfile: "Dockerfile"
+    ports:
+      - "8000:8000"
+  client:
+    container_name: "client"
+    build:
+      context: "./client"
+      dockerfile: "Dockerfile"
+      args:
+        apiurl: http://127.0.0.1:8000/
+    ports:
+      - "3000:3000"
