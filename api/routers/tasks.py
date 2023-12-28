@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from models import Task
-from schemas import TaskCreate
+from schemas import TaskCreate, TaskSchema
 from starlette import status
 from dependencies.db_dependency import get_db
 from .auth import get_current_user
@@ -15,7 +15,7 @@ router = APIRouter(tags=["tasks"])
 
 
 @router.get("/tasks")
-def get_tasks(user: user_dependency, db: db_dependency):
+def get_tasks(user: user_dependency, db: db_dependency) -> list[TaskSchema]:
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -48,10 +48,18 @@ def post_todo(user: user_dependency, db: db_dependency, task_create_schema: Task
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authenticated"
         )
 
-    task_model = Task(**task_create_schema.model_dump(), owner_id=user.get("id"))
+    try:
+        task_model = Task(**task_create_schema.model_dump(), owner_id=user.get("id"))
 
-    db.add(task_model)
-    db.commit()
+        db.add(task_model)
+        db.commit()
+
+        message = "Task created"
+
+    except Exception as e:
+        message = "Task not created"
+
+    return {"message": message}
 
 
 @router.put("/task/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
